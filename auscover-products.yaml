@@ -1,0 +1,48 @@
+# possible yaml structure for AusCover product data 
+---
+- name: Global Fractional Cover - MODIS
+  description: 
+  type: netcdf
+  crs: 'EPSG:4326'
+  spatial_extent: {ul: '0,0', lr: '+180,-90'}
+  temporal_extent: {start: '2001-01-01T00:00:00.000Z', end: '2016-01-30T00:00:00.000Z'}
+  location: file:///rdsi/public/modis/blah
+  variables: bs, pv, npv
+
+- name: Fractional Cover - Landsat
+  description: 
+  type: geotiff
+  crs: 'EPSG:4326'
+  spatial_extent: {ul: '0,0', lr: '+180,-90'}
+  temporal_extent: {start: '2001-01-01T00:00:00.000Z', end: '2016-01-30T00:00:00.000Z'}
+  location: file:///rdsi/public/landsat/blah
+  variables: var1
+
+- name: Global Fractional Cover - Anomaly
+  description: 
+  type: WCS
+  crs: 'EPSG:4326'
+  spatial_extent: {ul: '0,0', lr: '+180,-90'}
+  temporal_extent: {start: '2001-01-01T00:00:00.000Z', end: '2016-01-30T00:00:00.000Z'}
+  location: http://qld.auscover.org.au/geoserver-dev/wcs...
+  variables: var1
+
+- name: Global Total Cover - MODIS
+  description: 
+  type: WCS
+  crs: 'EPSG:4326'
+  spatial_extent: {ul: '0,0', lr: '+180,-90'}
+  temporal_extent: {start: '2001-01-01T00:00:00.000Z', end: '2016-01-30T00:00:00.000Z'}
+  location: http://qld.auscover.org.au/geoserver-dev/global/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageID=total_cover
+  variables: total_cover
+
+- name: Global Soil Moisture - AMSR2 - Monthly
+  description: 
+  type: NCSS
+  crs: 'EPSG:4326'
+  spatial_extent: {ul: '0,0', lr: '+180,-90'}
+  temporal_extent: {start: '2012-08-31T00:00:00.000Z', end: '2016-02-29T00:00:00.000Z'}
+  location: http://qld.auscover.org.au/thredds/ncss/auscover/spatial_other/csiro/amsr2/amsr2-soilm-global-monthly.nc?var=soilm
+  variables: soilm
+
+...
