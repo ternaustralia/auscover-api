@@ -11,14 +11,17 @@ from pprint import pprint
 from collections import OrderedDict as OD
 from subprocess import call as spc
 from datetime import datetime
+
 ### Globals ###
+CacheDir = '/var/cache/auscover/'
+YamlDir = '/var/rs/auscover-api/'
 tmpncfile = ''
 
 ### Functions ###
 
 def readYaml():
   """Read a file into a yaml list/dict object """
-  yf = 'auscover-products.yaml'
+  yf = YamlDir + 'auscover-products.yaml'
   yd = [ OD() ]
   with open(yf, 'r') as fin:
     yd = yaml.safe_load(fin)
@@ -131,7 +134,7 @@ def parseArgs(args):
       print 'Time-series csv ...'
       if len(p) > 1:
         fname = p[1]
-        timeSeries(fname)
+        timeSeries(fname, var)
       else:
         timeSeries()
       break
@@ -148,7 +151,7 @@ def formRequest(ds, var, bbox, trange):
   cmd = []
 
   #tmpncfile = 'tmp-xxx.nc' 
-  tmpncfile = 'tmp-' + datetime.now().strftime('%Y%m%dT%H%I%S') + '.nc'
+  tmpncfile = CacheDir + 'tmp-' + datetime.now().strftime('%Y%m%dT%H%I%S') + '.nc'
 
   #split bbox into lat/lon components
   lat = float(bbox.split(',')[0])
@@ -204,11 +207,11 @@ def formRequest(ds, var, bbox, trange):
     print 'Error in command: %s' % cmd
     sys.exit(1)
 
-  # and generate the time series
+  # and generate the csv time-series
   #cmd = ['python', 'ts-out.py', tmpncfile, var]
   print 'Generate csv ...'
   print ''
-  timeSeries(var=var)
+  timeSeries(tmpncfile, var)
   #if spc(cmd):
   #  print 'Error in command: %s' % cmd
   #  sys.exit(1)
@@ -216,7 +219,7 @@ def formRequest(ds, var, bbox, trange):
    
 #--- 
 
-def timeSeries(infile='tmp-xxx.nc', var='default'):
+def timeSeries(infile=tmpncfile, var='default'):
   """Produce a time series csv output from an NC file.
      Defaults to tmp-xxx input file and first variable found.
   """
@@ -227,7 +230,7 @@ def timeSeries(infile='tmp-xxx.nc', var='default'):
   #####
 
   filin = infile
-  #print filin
+  print filin
   if not os.path.exists(filin):
     print ''
     print 'Cannot find file: %s !!!' % filin
@@ -241,6 +244,7 @@ def timeSeries(infile='tmp-xxx.nc', var='default'):
     #pick first variable in dataset
     var = ncf.variables.keys()[0]
 
+  #print var
   print 'Datetime,Value'
   for i in range(len(ncf['time'])):
     #print '%s,%s' % (cdftime.num2date(ncf['time'][i]).strftime('%Y-%m-%d'), ncf['total_cover'][i,0,0])
@@ -268,7 +272,7 @@ def main(*args):
          -b<bbox> = bounding box (lower-left, upper-right)
          -t(time_range) = (start-time, end-time)
          -f<output_format> = nc, tif, asc ...
-         -s[file-name] = produce time-series from NC file
+         -s[file-name] = produce time-series from NC file (also requires -v<variable>)
   """
 
   print ''
