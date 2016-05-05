@@ -19,7 +19,8 @@ import sys
 def run(arg1, arg2):
   #out = 'Arg1: %s  and Arg2: %s\n\n' % (arg1, arg2)
   #cmdout = subprocess.check_output(['cat', '/etc/motd'])
-  DIR = 'webapps/geoserver-dev/data/scripts/wps/'
+  #DIR = 'webapps/geoserver-dev/data/scripts/wps/'
+  DIR = '/var/rs/auscover-api/'
   cmd = ['cat', DIR + 'soilm-ts.csv']
   #cmd = ['ls', '-l', 'webapps/geoserver-dev/data/scripts/wps']
   p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
