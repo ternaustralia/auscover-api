@@ -7,7 +7,7 @@
   spatial_extent: {ul: '0,0', lr: '+180,-90'}
   temporal_extent: {start: '2001-01-01T00:00:00.000Z', end: '2016-01-30T00:00:00.000Z'}
   location: file:///rdsi/public/modis/blah
-  variables: bs, pv, npv
+  variables: bs,pv,npv
 
 - name: Fractional Cover - Landsat
   description: 
@@ -18,14 +18,14 @@
   location: file:///rdsi/public/landsat/blah
   variables: var1
 
-- name: Global Fractional Cover - Anomaly
+- name: Global Fractional Cover - MODIS
   description: 
   type: WCS
   crs: 'EPSG:4326'
   spatial_extent: {ul: '0,0', lr: '+180,-90'}
   temporal_extent: {start: '2001-01-01T00:00:00.000Z', end: '2016-01-30T00:00:00.000Z'}
-  location: http://qld.auscover.org.au/geoserver-dev/wcs...
-  variables: var1
+  location: http://localhost:8080/geoserver-dev/global/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageID=fractcover_monthly
+  variables: bs,pv,npv
 
 - name: Global Total Cover - MODIS
   description: 
@@ -33,7 +33,8 @@
   crs: 'EPSG:4326'
   spatial_extent: {ul: '0,0', lr: '+180,-90'}
   temporal_extent: {start: '2001-01-01T00:00:00.000Z', end: '2016-01-30T00:00:00.000Z'}
-  location: http://qld.auscover.org.au/geoserver-dev/global/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageID=total_cover
+  #location: http://qld.auscover.org.au/geoserver-dev/global/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageID=total_cover
+  location: http://localhost:8080/geoserver-dev/global/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageID=total_cover
   variables: total_cover
 
 - name: Global Soil Moisture - AMSR2 - Monthly
