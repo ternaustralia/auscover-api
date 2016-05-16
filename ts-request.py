@@ -39,7 +39,7 @@ def listAllDatasets(yd):
   print '%3s' % 'ID', 'Layer/Product'.ljust(flen)[:flen], 'Type'.ljust(flen-20), 'Location'.ljust(flen+20)[:flen+20]
   print '%3s' % '--', '-------------'.ljust(flen)[:flen], '----'.ljust(flen-20), '--------'.ljust(flen+20)[:flen+20]
   for i in range(len(yd)):
-    print "%3s" % str(i+1), yd[i]['name'].ljust(flen)[:flen], yd[i]['type'].ljust(flen-20), yd[i]['location'].ljust(flen+20)[:flen+20]
+    print "%3s" % str(i+1), yd[i]['name'].ljust(flen)[:flen], yd[i]['type'].ljust(flen-20), yd[i]['location'].ljust(flen+40)[:flen+40]
 #--- 
 
 def listDatasetID(ds):
