@@ -13,6 +13,7 @@ from subprocess import call as spc
 from datetime import datetime
 
 ### Globals ###
+Version = 'AusCover-API v0.1'
 CacheDir = '/var/cache/auscover/'
 YamlDir = '/var/rs/auscover-api/'
 tmpncfile = ''
@@ -115,23 +116,23 @@ def parseArgs(args):
         break
     if p[0] == 'd':
       if len(p) != 2: errorParams(p[0])
-      print 'Dataset chosen <%s>: %s' % ( p[1], yd[int(p[1]) -1]['name'] )
+      #print 'Dataset chosen <%s>: %s' % ( p[1], yd[int(p[1]) -1]['name'] )
       dsid = int(p[1]) 
     if p[0] == 'v':
       if len(p) != 2: errorParams(p[0])
-      print 'Variable chosen: ', p[1]
+      #print 'Variable chosen: ', p[1]
       var = p[1]
     if p[0] == 'b':
       if len(p) != 2: errorParams(p[0])
-      print 'Bounding box: ', p[1]
+      #print 'Bounding box: ', p[1]
       bbox = p[1]
     if p[0] == 't':
       if len(p) != 2: errorParams(p[0])
-      print 'Time range: ', p[1]
+      #print 'Time range: ', p[1]
       trange = p[1]
     if p[0] == 's':
       freq = False
-      print 'Time-series csv ...'
+      #print 'Time-series csv ...'
       if len(p) > 1:
         fname = p[1]
         timeSeries(fname, var)
@@ -140,10 +141,10 @@ def parseArgs(args):
       break
 
   # now formulate request
-  if freq: formRequest(yd[int(dsid -1)], var, bbox, trange)
+  if freq: formRequest(yd[int(dsid -1)], bbox, var, trange)
 #--- 
 
-def formRequest(ds, var, bbox, trange):
+def formRequest(ds, bbox, var='', trange=''):
   """Formualate request based on layer type."""
   global tmpncfile
   #print ds
@@ -164,6 +165,9 @@ def formRequest(ds, var, bbox, trange):
   else:
     tstart = ds['temporal_extent']['start']
     tend = ds['temporal_extent']['end']
+  # if var not specified pick default
+  if var == '':
+    var = ds['variables'].split(',')[0]
 
   wcsTsubset = '&subset=time(\"%s\",\"%s\")' % (tstart, tend)
   ncssTsubset = '&time_start=%s' % tstart + '&time_end=%s' % tend + '&timeStride=1&accept=netcdf'
@@ -182,7 +186,7 @@ def formRequest(ds, var, bbox, trange):
           '&subset=Lat(%s,%s)' % (lat, lat + delta) + \
           '&subset=Long(%s,%s)' % (lon, lon + delta) + wcsTsubset
           #'&subset=time(\"%s\",\"%s\")' % (tstart, tend)
-    print url
+    #print url
     cmd = ['curl', '-s', url, '-o', tmpncfile] 
   elif ds['type'].lower() == 'ncss':
     #print 'use curl'
@@ -202,16 +206,16 @@ def formRequest(ds, var, bbox, trange):
 
   # now run the command
   print ''
-  print 'Running subset request ...'
+  #print 'Running subset request ...'
   if spc(cmd):
     print 'Error in command: %s' % cmd
     sys.exit(1)
 
   # and generate the csv time-series
   #cmd = ['python', 'ts-out.py', tmpncfile, var]
-  print 'Generate csv ...'
-  print ''
-  timeSeries(tmpncfile, var)
+  #print 'Generate csv ...'
+  #print ''
+  timeSeries(tmpncfile, var, 'json', ds, bbox, trange)
   #if spc(cmd):
   #  print 'Error in command: %s' % cmd
   #  sys.exit(1)
@@ -219,7 +223,7 @@ def formRequest(ds, var, bbox, trange):
    
 #--- 
 
-def timeSeries(infile=tmpncfile, var='default'):
+def timeSeries(infile=tmpncfile, var='default', fmt='json', ds='default', latlon='default', trange='default'):
   """Produce a time series csv output from an NC file.
      Defaults to tmp-xxx input file and first variable found.
   """
@@ -227,10 +231,13 @@ def timeSeries(infile=tmpncfile, var='default'):
   from netCDF4 import Dataset
   from netcdftime import utime
   from datetime import datetime
+  from collections import OrderedDict
+  import json
+  from copy import copy
   #####
 
   filin = infile
-  print filin
+  #print filin
   if not os.path.exists(filin):
     print ''
     print 'Cannot find file: %s !!!' % filin
@@ -244,11 +251,30 @@ def timeSeries(infile=tmpncfile, var='default'):
     #pick first variable in dataset
     var = ncf.variables.keys()[0]
 
-  #print var
-  print 'Datetime,Value'
+  # formulate result into a dict
+  result = OrderedDict()
+  result['Version'] = Version
+  result['Datasetname'] = ds['name']
+  result['Variable'] = var
+  result['LatLon'] = latlon
+  result['TimeRange'] = trange
+  result['Data'] = []
+  ld = OrderedDict()
+  #ld['Datetime'] = 'Datetime'
+  #ld['Value'] = 'Value'
+  #result['Data'].append(ld)
   for i in range(len(ncf['time'])):
-    #print '%s,%s' % (cdftime.num2date(ncf['time'][i]).strftime('%Y-%m-%d'), ncf['total_cover'][i,0,0])
-    print '%s,%s' % (cdftime.num2date(ncf['time'][i]).strftime('%Y-%m-%d'), ncf[var][i,0,0])
+    ld1 = copy(ld)
+    ld1['Datetime'] = cdftime.num2date(ncf['time'][i]).strftime('%Y-%m-%d')
+    ld1['Value'] = str(ncf[var][i,0,0])
+    #print i, ld
+    result['Data'].append(ld1)
+
+  #print var
+  #print result
+  if fmt == 'json':
+    print json.dumps(result, indent=2)
+    pass
 
   ncf.close()
 
@@ -275,11 +301,11 @@ def main(*args):
          -s[file-name] = produce time-series from NC file (also requires -v<variable>)
   """
 
-  print ''
-  print '----------------------------'
-  print ' AusCover API - Dev Ver 0.1'
-  print '----------------------------'
-  print ''
+  #print ''
+  #print '----------------------------'
+  #print ' AusCover API - Dev Ver 0.1'
+  #print '----------------------------'
+  #print ''
 
   if len(args[0]) == 1:
       print ''
@@ -290,8 +316,8 @@ def main(*args):
       parseArgs(args[0][1:])
 
   print ''
-  print '--- DONE ---'
-  print ''
+  #print '--- DONE ---'
+  #print ''
 
   # clean up
   if os.path.exists(tmpncfile): os.remove(tmpncfile)

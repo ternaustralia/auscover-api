@@ -6,7 +6,7 @@
 from geoserver.wps import process
 #from com.vividsolutions.jts.geom import Geometry
 import subprocess
-import sys
+#import sys
 
 #####
 
@@ -18,8 +18,8 @@ import sys
     'latlon': (str,'Location coords in lat,lon')
   },
   outputs={
-    #'result': (str, 'Time series data for location'),
-    'result': (str, 'Time series data for location', {'mimeType': (str, 'application/json')})
+    #'result': (str, 'Time series data for location')
+    'result': (str, 'Time series data for location', {'mimeType': (str, 'text/xml,application/json')})
   }
 )
 def run(layer='', latlon=''):
@@ -29,14 +29,21 @@ def run(layer='', latlon=''):
   # What the real call should be
   # if layer is blank then return a list of layers
   # if layer is non-blank check that it exists, and if latlon blank return error to say it is required
-  
+
+  print layer, latlon  
   DIR = '/var/rs/auscover-api/'
   if layer == '':
-    cargs = '-l'
+    cargs = ['-l']
+  else:
+    cargs = ['-d%s' % layer, '-b%s' % latlon]
+  #cargs = '-d%s -b%s' % (layer, latlon)
   #cmd = ['cat', DIR + 'soilm-ts.csv']
-  cmd = ['python', DIR + 'ts-request.py', cargs]
+  cmd = ['/usr/bin/python', DIR + 'ts-request.py'] + cargs
   p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
   cmdout = p.communicate()[0]
-  out = '<xml>%s</xml>' % cmdout
+  #out = '<xml>%s</xml>' % cmdout
+  out = cmdout
+  #out = str(cmd)
+  #out = 'blah'
   return out
 
