@@ -6,7 +6,8 @@
 from geoserver.wps import process
 #from com.vividsolutions.jts.geom import Geometry
 import subprocess
-#import sys
+#from simplejson import loads as jsload
+import sys
 
 #####
 
@@ -15,14 +16,16 @@ import subprocess
   description='Extract a time series from a layer',
   inputs={
     'layer': (str, 'Unique layer name'),
-    'latlon': (str,'Location coords in lat,lon')
+    #'latlon': (str,'Location coords in lat,lon')
+    'lon_lat_position': (str, 'Point location in geoJSON')
   },
   outputs={
     #'result': (str, 'Time series data for location')
-    'result': (str, 'Time series data for location', {'mimeType': (str, 'text/xml,application/json')})
+    'result': (str, 'Time series data for location', {'mimeType': (str, 'text/csv')})
   }
 )
-def run(layer='', latlon=''):
+def run(layer='', lon_lat_position=''):
+#def run(layer='', latlon=''):
   # For testing
   #out = 'Layer: %s  and LatLon: %s\n\n' % (layer, latlon)
 
@@ -30,20 +33,33 @@ def run(layer='', latlon=''):
   # if layer is blank then return a list of layers
   # if layer is non-blank check that it exists, and if latlon blank return error to say it is required
 
-  print layer, latlon  
+  #print layer, latlon  
+  print layer, lon_lat_position  
   DIR = '/var/rs/auscover-api/'
   if layer == '':
     cargs = ['-l']
   else:
+    #/usr/lib/python2.7/dist-packages/simplejson
+    try:
+      sys.path.append('/usr/lib/python2.7/dist-packages/')
+      import simplejson as json
+    except Exception, e:
+      print e
+
+    jd = json.loads(lon_lat_position)
+    lat = jd['features'][0]['geometry']['coordinates'][1]
+    lon = jd['features'][0]['geometry']['coordinates'][0]
+    latlon = '%s,%s' % (lat, lon)
+    #latlon = '%s,%s' % ('-35.0', '149.0')
     cargs = ['-d%s' % layer, '-b%s' % latlon]
-  #cargs = '-d%s -b%s' % (layer, latlon)
-  #cmd = ['cat', DIR + 'soilm-ts.csv']
+
   cmd = ['/usr/bin/python', DIR + 'ts-request.py'] + cargs
   p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
   cmdout = p.communicate()[0]
-  #out = '<xml>%s</xml>' % cmdout
   out = cmdout
+
   #out = str(cmd)
-  #out = 'blah'
+  #out = str(sys.path)
+
   return out
 

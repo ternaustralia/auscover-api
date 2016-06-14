@@ -37,10 +37,10 @@ def listAllDatasets(yd):
   #print 'Contains %d items of %s' % (len(yd), type(yd))
   print ''
   #print 'ID  Layer/Product         Location'
-  print '%3s' % 'ID', 'Layer/Product'.ljust(flen)[:flen], 'Type'.ljust(flen-20), 'Location'.ljust(flen+20)[:flen+20]
-  print '%3s' % '--', '-------------'.ljust(flen)[:flen], '----'.ljust(flen-20), '--------'.ljust(flen+20)[:flen+20]
+  print '%3s' % 'ID', 'Layer/Product'.ljust(flen)[:flen], 'Type'.ljust(flen-20), 'Description'.ljust(flen+20)[:flen+20]
+  print '%3s' % '--', '-------------'.ljust(flen)[:flen], '----'.ljust(flen-20), '-----------'.ljust(flen+20)[:flen+20]
   for i in range(len(yd)):
-    print "%3s" % str(i+1), yd[i]['name'].ljust(flen)[:flen], yd[i]['type'].ljust(flen-20), yd[i]['location'].ljust(flen+40)[:flen+40]
+    print "%3s" % str(i+1), yd[i]['name'].ljust(flen)[:flen], yd[i]['type'].ljust(flen-20), yd[i]['description'].ljust(flen+40)[:flen+40]
 #--- 
 
 def listDatasetID(ds):
@@ -59,6 +59,17 @@ def listDatasetID(ds):
 def errorParams(p):
   print 'This argument <%s> requires a value!' % p
   usage()
+#--- 
+
+def findNameinDict(d, n):
+  i = 1
+  m = 0
+  for l in d:
+    if l['name'] == n:
+      m = i
+      break
+    i += 1
+  return m
 #--- 
 
 def parseArgs(args):
@@ -99,6 +110,7 @@ def parseArgs(args):
 
   dsid = 0
   var = bbox = trange = ''
+  fmt = 'csv'
 
   # now process the args
   freq = True
@@ -110,14 +122,27 @@ def parseArgs(args):
         listAllDatasets(yd)
         break
       else:
-        dsid = int(p[1])
+        if re.match('\d+', p[1]):		# it's a number
+          dsid = int(p[1]) 
+        else:
+          dsid = findNameinDict(yd, p[1])
+        if dsid == 0:
+          print 'Dataset not found: ', dsid
+          sys.exit(1)
+        #dsid = int(p[1])
         print 'Details for dataset <%d>: %s' % (dsid, yd[dsid - 1]['name'])
         listDatasetID(yd[dsid - 1]) 
         break
     if p[0] == 'd':
       if len(p) != 2: errorParams(p[0])
       #print 'Dataset chosen <%s>: %s' % ( p[1], yd[int(p[1]) -1]['name'] )
-      dsid = int(p[1]) 
+      if re.match('\d+', p[1]):		# it's a number
+        dsid = int(p[1]) 
+      else:
+        dsid = findNameinDict(yd, p[1])
+      if dsid == 0:
+        print 'Dataset not found: ', dsid
+        sys.exit(1)
     if p[0] == 'v':
       if len(p) != 2: errorParams(p[0])
       #print 'Variable chosen: ', p[1]
@@ -130,6 +155,10 @@ def parseArgs(args):
       if len(p) != 2: errorParams(p[0])
       #print 'Time range: ', p[1]
       trange = p[1]
+    if p[0] == 'f':
+      if len(p) != 2: errorParams(p[0])
+      #print 'Time range: ', p[1]
+      fmt = p[1]
     if p[0] == 's':
       freq = False
       #print 'Time-series csv ...'
@@ -141,10 +170,10 @@ def parseArgs(args):
       break
 
   # now formulate request
-  if freq: formRequest(yd[int(dsid -1)], bbox, var, trange)
+  if freq: formRequest(yd[int(dsid -1)], bbox, var, trange, fmt)
 #--- 
 
-def formRequest(ds, bbox, var='', trange=''):
+def formRequest(ds, bbox, var='', trange='', fmt='csv'):
   """Formualate request based on layer type."""
   global tmpncfile
   #print ds
@@ -205,7 +234,7 @@ def formRequest(ds, bbox, var='', trange=''):
     sys.exit(1)
 
   # now run the command
-  print ''
+  #print ''
   #print 'Running subset request ...'
   if spc(cmd):
     print 'Error in command: %s' % cmd
@@ -215,7 +244,7 @@ def formRequest(ds, bbox, var='', trange=''):
   #cmd = ['python', 'ts-out.py', tmpncfile, var]
   #print 'Generate csv ...'
   #print ''
-  timeSeries(tmpncfile, var, 'json', ds, bbox, trange)
+  timeSeries(tmpncfile, var, fmt, ds, bbox, trange)
   #if spc(cmd):
   #  print 'Error in command: %s' % cmd
   #  sys.exit(1)
@@ -223,7 +252,7 @@ def formRequest(ds, bbox, var='', trange=''):
    
 #--- 
 
-def timeSeries(infile=tmpncfile, var='default', fmt='json', ds='default', latlon='default', trange='default'):
+def timeSeries(infile=tmpncfile, var='default', fmt='csv', ds='default', latlon='default', trange='default'):
   """Produce a time series csv output from an NC file.
      Defaults to tmp-xxx input file and first variable found.
   """
@@ -266,7 +295,7 @@ def timeSeries(infile=tmpncfile, var='default', fmt='json', ds='default', latlon
   for i in range(len(ncf['time'])):
     ld1 = copy(ld)
     ld1['Datetime'] = cdftime.num2date(ncf['time'][i]).strftime('%Y-%m-%d')
-    ld1['Value'] = str(ncf[var][i,0,0])
+    ld1['Value'] = format(ncf[var][i,0,0], '.2f')
     #print i, ld
     result['Data'].append(ld1)
 
@@ -274,8 +303,10 @@ def timeSeries(infile=tmpncfile, var='default', fmt='json', ds='default', latlon
   #print result
   if fmt == 'json':
     print json.dumps(result, indent=2)
-    pass
-
+  else:
+    print '%s,%s' % ('Datetime', result['Variable'])
+    for r in result['Data']:
+      print '%s,%s' % (r['Datetime'], r['Value'])
   ncf.close()
 
 #--- 
@@ -295,9 +326,9 @@ def main(*args):
          -l[dataset] = list all available datasets (or specified dataset)
          -d<dataset> = dataset number
          -v<variable> = variable identifier
-         -b<bbox> = bounding box (lower-left, upper-right)
+         -b<bbox> = bounding box lat,lon (lower-left[, upper-right])
          -t(time_range) = (start-time, end-time)
-         -f<output_format> = nc, tif, asc ...
+         -f<output_format> = [csv], json, nc, tif ...
          -s[file-name] = produce time-series from NC file (also requires -v<variable>)
   """
 
