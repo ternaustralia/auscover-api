@@ -1,0 +1,57 @@
+[timeSeries]
+ Title = timeSeries
+ Abstract = Extract a time series from a layer.
+ processVersion = 2
+ storeSupported = true
+ statusSupported = true
+ serviceProvider = auscover-wps
+ serviceType = Python
+ <MetaData>
+   title = TimeSeries Extractor
+ </MetaData>
+
+ <DataInputs>
+  [layer]
+   Title = layer Name
+   Abstract = Unique Layer Name
+   minOccurs = 1
+   maxOccurs = 1
+   <LiteralData>
+    dataType = string
+    <Default>
+    </Default>
+   </LiteralData>
+
+  [lon_lat_position]
+   Title = Point Location
+   Abstract = Point location in geoJSON
+   minOccurs = 1
+   maxOccurs = 1
+   <ComplexData>
+    <Default>
+     mimeType = application/vnd.geo+json
+     encoding = UTF-8
+    </Default>
+    <Supported>
+     mimeType = application/json
+     encoding = UTF-8
+    </Supported>
+   </ComplexData>
+
+ </DataInputs>
+
+ <DataOutputs>
+  [Result]
+   Title = Time Series Output
+   Abstract = Time series data for location.
+   <ComplexData>
+    <Default>
+     mimeType = text/csv
+     encoding = UTF-8
+    </Default>
+    <Supported>
+     mimeType = text/plain
+     encoding = UTF-8
+    </Supported>
+   </ComplexData>
+ </DataOutputs>
