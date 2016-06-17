@@ -174,14 +174,14 @@ def parseArgs(args):
 #--- 
 
 def formRequest(ds, bbox, var='', trange='', fmt='csv'):
-  """Formualate request based on layer type."""
+  """Formulate request based on layer type."""
   global tmpncfile
   #print ds
 
   cmd = []
 
   #tmpncfile = 'tmp-xxx.nc' 
-  tmpncfile = CacheDir + 'tmp-' + datetime.now().strftime('%Y%m%dT%H%I%S') + '.nc'
+  tmpncfile = CacheDir + 'tmp-' + datetime.now().strftime('%Y%m%dT%H%M%S') + '.nc'
 
   #split bbox into lat/lon components
   lat = float(bbox.split(',')[0])
