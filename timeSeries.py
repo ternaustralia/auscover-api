@@ -4,7 +4,8 @@
 #
 #####
 from geoserver.wps import process
-#from com.vividsolutions.jts.geom import Geometry
+from com.vividsolutions.jts.geom import Geometry
+from com.vividsolutions.jts.geom import Point
 import subprocess
 #from simplejson import loads as jsload
 import sys
@@ -17,7 +18,9 @@ import sys
   inputs={
     'layer': (str, 'Unique layer name'),
     #'latlon': (str,'Location coords in lat,lon')
-    'lon_lat_position': (str, 'Point location in geoJSON')
+    #'lon_lat_position': (str, 'Point location in geoJSON')
+    'lon_lat_position': (Point, 'Point location in geoJSON')
+    #'lon_lat_position': (Geometry, 'Point location in geoJSON', {'mimeTypes':'application/vnd.geo+json','chosenMimeType':'application/vnd.geo+json'})
   },
   outputs={
     #'result': (str, 'Time series data for location')

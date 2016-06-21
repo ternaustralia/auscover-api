@@ -14,7 +14,7 @@ def timeSeries(conf, inputs, outputs):
   DIR = '/var/rs/auscover-api/'
   layer = inputs["layer"]["value"]
   lon_lat_position = urllib.unquote(inputs["lon_lat_position"]["value"])
-  print layer, lon_lat_position  
+  #print layer, lon_lat_position  
   if layer == '':
     cargs = ['-l']
   else:

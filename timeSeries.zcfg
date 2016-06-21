@@ -31,10 +31,12 @@
     <Default>
      mimeType = application/vnd.geo+json
      encoding = UTF-8
+     schema = http://geojson.org/geojson-spec.html#point
     </Default>
     <Supported>
      mimeType = application/json
      encoding = UTF-8
+     schema = http://geojson.org/geojson-spec.html#point
     </Supported>
    </ComplexData>
 
