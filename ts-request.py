@@ -197,7 +197,7 @@ def formRequest(ds, bbox, var='', trange='', fmt='csv'):
     tend = ds['temporal_extent']['end']
     ncssTsubset = '&temporal=all' 
   # if var not specified pick default
-  if var == '':
+  if var == 'default' or var == '':
     var = ds['variables'].split(',')[0]
 
   wcsTsubset = '&subset=time(\"%s\",\"%s\")' % (tstart, tend)

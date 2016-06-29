@@ -22,9 +22,20 @@
     </Default>
    </LiteralData>
 
+  [variables]
+   Title = Variable Name(s)
+   Abstract = (Optional) list of comma-separated variables 
+   minOccurs = 0
+   maxOccurs = 1
+   <LiteralData>
+    dataType = string
+    <Default>
+    </Default>
+   </LiteralData>
+
   [lon_lat_position]
    Title = Point Location
-   Abstract = Point location in geoJSON
+   Abstract = Point location in geoJSON or lon,lat
    minOccurs = 0
    maxOccurs = 1
    <ComplexData>
