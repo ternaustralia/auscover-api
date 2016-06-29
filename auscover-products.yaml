@@ -26,7 +26,17 @@
   crs: 'EPSG:4326'
   spatial_extent: {ul: '0,0', lr: '+180,-90'}
   temporal_extent: {start: '2012-08-31T00:00:00.000Z', end: '2016-02-29T00:00:00.000Z'}
-  location: http://qld.auscover.org.au/thredds/ncss/auscover/spatial_other/csiro/amsr2/amsr2-soilm-global-monthly.nc?var=soilm
+  #location: http://qld.auscover.org.au/thredds/ncss/auscover/spatial_other/csiro/amsr2/amsr2-soilm-global-monthly.nc?var=soilm
+  location: http://qld.auscover.org.au/thredds/ncss/auscover/spatial_other/csiro/amsr2/amsr2-soilm-global-monthly.nc
   variables: soilm
+
+- name: lpdaac-mosaic-mod13q1-v5-ndvi
+  description: MODIS LPDAAC Mosaic MOD13Q1.005 NDVI
+  type: NCSS
+  crs: 'EPSG:4326'
+  spatial_extent: {ul: '110,-10', lr: '155,-45'}
+  temporal_extent: {start: '2000-02-18T00:00:00.000Z', end: '2016-05-24T00:00:00.000Z'}
+  location: http://auscover.org.au/thredds/ncss/auscover/lpdaac-aggregates/c5/v2-nc4/aust/MOD13Q1.005/MOD13Q1.aggregated.aust.005.normalised_difference_vegetation_index.ncml
+  variables: ndvi,quality,typical_mask
 
 ...

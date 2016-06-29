@@ -191,16 +191,20 @@ def formRequest(ds, bbox, var='', trange='', fmt='csv'):
   if trange != '':
     tstart = trange.split(',')[0]
     tend = trange.split(',')[1]
+    ncssTsubset = '&time_start=%s' % tstart + '&time_end=%s' % tend + '&timeStride=1&accept=netcdf'
   else:
     tstart = ds['temporal_extent']['start']
     tend = ds['temporal_extent']['end']
+    ncssTsubset = '&temporal=all' 
   # if var not specified pick default
   if var == '':
     var = ds['variables'].split(',')[0]
 
   wcsTsubset = '&subset=time(\"%s\",\"%s\")' % (tstart, tend)
-  ncssTsubset = '&time_start=%s' % tstart + '&time_end=%s' % tend + '&timeStride=1&accept=netcdf'
+  #ncssTsubset = '&time_start=%s' % tstart + '&time_end=%s' % tend + '&timeStride=1&accept=netcdf'
+  # according to docs can also use "temporal=all" in place of above
 
+  # select query command based on type of data
   if ds['type'].lower() == 'netcdf':
     #print 'use ncks or gdallocationinfo'
     cmd = ['ncks', '-v' + var, '-d' + bbox, ds['location']] 
@@ -221,11 +225,14 @@ def formRequest(ds, bbox, var='', trange='', fmt='csv'):
     #print 'use curl'
     #url = ds['location'] + '&time=%s' % trange + '&bbox=%s' % bbox
     #url = ds['location'] + '&north=-35.005' + '&west=140.005' + '&east=140.015' + '&south=-35.015' + '&disableProjSubset=on&horizStride=1' + '&time_start=2012-08-31T00%3A00%3A00Z' + '&time_end=2016-02-29T00%3A00%3A00Z' + '&timeStride=1&accept=netcdf'
-    url = ds['location'] + '&disableProjSubset=on&horizStride=1' + \
-          '&north=%s' % (lat + delta) + \
-          '&west=%s' % (lon - delta) + \
-          '&east=%s' % (lon + delta) + \
-          '&south=%s' % (lat - delta) + ncssTsubset
+    url = ds['location'] + '?var=%s' % (var) + '&disableProjSubset=on&horizStride=1' + \
+          '&latitude=%s' % (lat) + \
+          '&longitude=%s' % (lon) + \
+          ncssTsubset + '&accept=netcdf'
+          #'&north=%s' % (lat + delta) + \
+          #'&west=%s' % (lon - delta) + \
+          #'&east=%s' % (lon + delta) + \
+          #'&south=%s' % (lat - delta) + ncssTsubset
           #'&time_start=%s' % tstart + '&time_end=%s' % tend + '&timeStride=1&accept=netcdf'
     #cmd = ['curl', '"%s"' % url, '-o %s' % tmpncfile] 
     cmd = ['curl', '-s', url, '-o', tmpncfile] 
@@ -236,6 +243,8 @@ def formRequest(ds, bbox, var='', trange='', fmt='csv'):
   # now run the command
   #print ''
   #print 'Running subset request ...'
+  #print cmd
+  #sys.exit(1)
   if spc(cmd):
     print 'Error in command: %s' % cmd
     sys.exit(1)
@@ -278,13 +287,19 @@ def timeSeries(infile=tmpncfile, var='default', fmt='csv', ds='default', latlon=
 
   if var == 'default':
     #pick first variable in dataset
-    var = ncf.variables.keys()[0]
+    #var = ncf.variables.keys()[0]
+    mvars = ds['variables'].split(',')
+  else:
+    mvars = var.split(',')
 
   # formulate result into a dict
   result = OrderedDict()
   result['Version'] = Version
-  result['Datasetname'] = ds['name']
-  result['Variable'] = var
+  if ds == 'default':
+    result['Datasetname'] = filin
+  else:
+    result['Datasetname'] = ds['name']
+  result['Variable'] = ','.join(mvars)
   result['LatLon'] = latlon
   result['TimeRange'] = trange
   result['Data'] = []
@@ -295,7 +310,19 @@ def timeSeries(infile=tmpncfile, var='default', fmt='csv', ds='default', latlon=
   for i in range(len(ncf['time'])):
     ld1 = copy(ld)
     ld1['Datetime'] = cdftime.num2date(ncf['time'][i]).strftime('%Y-%m-%d')
-    ld1['Value'] = format(ncf[var][i,0,0], '.2f')
+    #ld1['Value'] = format(ncf[var][i,0,0], '.2f')
+    #ld1['Value'] = format(ncf[var][i,], '.2f')
+    for j in range(len(mvars)):
+      #ld1[mvars[j]] = format(ncf[mvars[j]][i,], '.2f')
+      if ncf[mvars[j]].ndim == 1:
+        ld1[mvars[j]] = str(ncf[mvars[j]][i,])
+      elif ncf[mvars[j]].ndim == 2:
+        ld1[mvars[j]] = str(ncf[mvars[j]][i,0,])
+      elif ncf[mvars[j]].ndim == 3:
+        ld1[mvars[j]] = str(ncf[mvars[j]][i,0,0])
+      else:
+        print 'Error: more than 3 ndims!'
+        sys.exit(1)
     #print i, ld
     result['Data'].append(ld1)
 
@@ -306,7 +333,11 @@ def timeSeries(infile=tmpncfile, var='default', fmt='csv', ds='default', latlon=
   else:
     print '%s,%s' % ('Datetime', result['Variable'])
     for r in result['Data']:
-      print '%s,%s' % (r['Datetime'], r['Value'])
+      #print '%s,%s' % (r['Datetime'], r['Value'])
+      line = r['Datetime']
+      for j in range(len(mvars)):
+        line += ',' + r[mvars[j]]
+      print line
   ncf.close()
 
 #--- 

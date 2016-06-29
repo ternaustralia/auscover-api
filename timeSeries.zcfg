@@ -14,7 +14,7 @@
   [layer]
    Title = layer Name
    Abstract = Unique Layer Name
-   minOccurs = 1
+   minOccurs = 0
    maxOccurs = 1
    <LiteralData>
     dataType = string
@@ -25,7 +25,7 @@
   [lon_lat_position]
    Title = Point Location
    Abstract = Point location in geoJSON
-   minOccurs = 1
+   minOccurs = 0
    maxOccurs = 1
    <ComplexData>
     <Default>
