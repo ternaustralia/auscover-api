@@ -12,12 +12,13 @@
 
  <DataInputs>
   [layer]
-   Title = layer Name
+   Title = Layer Name
    Abstract = Unique Layer Name
    minOccurs = 0
    maxOccurs = 1
    <LiteralData>
     dataType = string
+    AllowedValues = fractcover_monthly,total_cover,soil_moisture_amsr2_monthly
     <Default>
     </Default>
    </LiteralData>
