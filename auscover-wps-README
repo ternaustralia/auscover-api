@@ -1,0 +1,22 @@
+# AusCover WPS: time-series query of remote sensing datasets
+ 
+# Command-line examples using curl
+
+# Describe process
+curl "http://qld.auscover.org.au/wps?Service=WPS&Request=DecibeProcess&Version=1.0.0&Identifier=timeSeries"
+
+# Execute process without layer name - this will give a list of layers to choose
+curl "http://qld.auscover.org.au/wps?Service=WPS&Request=Execute&Version=1.0.0&Identifier=timeSeries"
+
+# Execute process with layer name only - this will give more details about chosen layer
+curl "http://qld.auscover.org.au/wps?Service=WPS&Request=Execute&Version=1.0.0&Identifier=timeSeries&dataInputs=layer=total_cover"
+
+# Execute process with layer name and lon_lat point - this will give a time series for the selected point (selects default first variable)
+curl "http://qld.auscover.org.au/wps?Service=WPS&Request=Execute&Version=1.0.0&Identifier=timeSeries&dataInputs=layer=total_cover;lon_lat_position=149.0,-35.0"
+
+# Execute process with layer name and lon_lat point and variable - this will give a time series for the selected point and variable
+curl "http://qld.auscover.org.au/wps?Service=WPS&Request=Execute&Version=1.0.0&Identifier=timeSeries&dataInputs=layer=total_cover;lon_lat_position=149.0,-35.0;variables=total_cover"
+
+# sed command(s) to pull out just the time-series data 
+... |sed -n '/<wps\:ComplexData.*>/,/<\/wps\:ComplexData.*>/p' | sed 's/.*wps\:ComplexData.*>//'
+

@@ -39,4 +39,12 @@
   location: http://auscover.org.au/thredds/ncss/auscover/lpdaac-aggregates/c5/v2-nc4/aust/MOD13Q1.005/MOD13Q1.aggregated.aust.005.normalised_difference_vegetation_index.ncml
   variables: ndvi,quality,typical_mask
 
+- name: soil-moisture-smips-daily
+  description: Modelled Soil Moisture (CSIRO/SMIPS) based on SMOS data
+  type: file
+  crs: 'EPSG:4326'
+  spatial_extent: {ul: '0,0', lr: '180,-90'}
+  temporal_extent: {start: '2016-01-01T00:00:00.000Z', end: '2016-07-11T00:00:00.000Z'}
+  location: /rdsi/public/data/spatial_other/csiro/smips/SMIPS*.nc
+  variables: soilm
 ...
