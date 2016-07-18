@@ -165,6 +165,7 @@ def pointOrPoly(pp):
 def getInputs():
   # get commandline inputs
   fileGlob = p = v = ''
+  b = '1'
   if len(sys.argv) < 2:
     print 'Usage:  raster-stats <file-glob> <point-or-poly> [<variable(s)-or-bandnum(s)>]'
     print ''
@@ -190,7 +191,7 @@ def getFiles(fg):
   elif 'tif' in (fileList[-1].split('.')[-1]):
     fmt = 'gtiff'
   else:
-    print 'Can\'t work out file format!'
+    print 'getFiles: Can\'t work out file format!'
     sys.exit(1)
   return fileList, fmt
 

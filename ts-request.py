@@ -10,6 +10,7 @@ import yaml
 from pprint import pprint
 from collections import OrderedDict as OD
 from subprocess import call as spc
+from subprocess import check_output
 from datetime import datetime
 
 ### Globals ###
@@ -72,6 +73,45 @@ def findNameinDict(d, n):
   return m
 #--- 
 
+def pointOrPoly(pp):
+  #if p[0] == '{':
+  if os.path.exists(pp):	# is it a filename that has been passed in
+    ext = os.path.splitext(pp)[1]
+    if ext.lower() == '.json' or ext.lower() == '.geojson':
+      from json import load
+      with open(pp) as jf:
+        jd = load(jf)
+        #if jd['features'][0]['geometry']['type'] == 'Polygon':
+        if 'Polygon' in jd['features'][0]['geometry']['type']:
+          return 'poly'
+        elif jd['features'][0]['geometry']['type'] == 'Point':
+          return 'point'
+    elif ext.lower() == '.shp':
+      return 'poly'
+  else:
+    if re.search('polygon', pp, re.I):
+      return 'poly'
+    #elif p[0] == 'P':
+    elif re.search('point', pp, re.I):
+      return 'point'
+    else:
+      print 'pointOrPoly: Unknown data type!'
+      sys.exit(1)
+#---
+
+def extractLatLon(pp):
+  #print pp
+  m = re.match('^.*\((.*)\).*$', pp)
+  if m:
+    lat = m.group(1).split(' ')[1]
+    lon = m.group(1).split(' ')[0]
+    ll = '%s,%s' % (lat, lon)
+    return ll
+  else:
+    print 'extractLatLon: can\'t extract location!'
+    sys.exit(1)
+#---
+
 def parseArgs(args):
   #print args, type(args), len(args)
   #allArgs = ' '.join(args)
@@ -109,7 +149,7 @@ def parseArgs(args):
   yd = readYaml()
 
   dsid = 0
-  var = bbox = trange = ''
+  var = pp = trange = ''
   fmt = 'csv'
 
   # now process the args
@@ -147,10 +187,10 @@ def parseArgs(args):
       if len(p) != 2: errorParams(p[0])
       #print 'Variable chosen: ', p[1]
       var = p[1]
-    if p[0] == 'b':
+    if p[0] == 'p':
       if len(p) != 2: errorParams(p[0])
       #print 'Bounding box: ', p[1]
-      bbox = p[1]
+      pp = p[1]
     if p[0] == 't':
       if len(p) != 2: errorParams(p[0])
       #print 'Time range: ', p[1]
@@ -169,11 +209,60 @@ def parseArgs(args):
         timeSeries()
       break
 
-  # now formulate request
-  if freq: formRequest(yd[int(dsid -1)], bbox, var, trange, fmt)
+  if freq:
+    ds = yd[dsid - 1]
+    if not var: var = ds['variables']
+    # is a point or polygon request
+    if pointOrPoly(pp) == 'point':
+      if ds['type'].lower() == 'file':
+        cmd = ['python', YamlDir + 'raster-stats.py', '\"%s\"' % ds['location'], pp, var]
+        #if spc(cmd):
+        cmdout = check_output(cmd)
+        if not cmdout:
+          print 'Error in command: %s' % cmd
+          sys.exit(1)
+        else:
+          print cmdout
+          sys.exit(0)
+
+      else:
+        ll = extractLatLon(pp)
+        formRequest(ds, ll, var, trange, fmt)
+
+    elif pointOrPoly(pp) == 'poly':
+      if ds['type'].lower() != 'file':
+        print 'Error: Can\'t use %s dataset type for a polygon search!' % ds['type']
+        sys.exit(1)
+
+      cmd = ['python', YamlDir + 'raster-stats.py', '%s' % ds['location'], pp, var]
+      cmdout = 'Before calling raster-stats\n'
+      cmdout += check_output(cmd)
+      cmdout += 'After calling raster-stats'
+
+      #if spc(cmd):
+      #  cmdout = 'Error in command: %s' % cmd
+      #else:
+      #  cmdout = 'All Ok'
+
+      #if not cmdout:
+      #  print 'Error in command: %s' % cmd
+      #  sys.exit(1)
+      #else:
+      #  print cmdout
+      #  sys.exit(0)
+      print cmdout
+      #sys.exit(0)
+      #exit()
+
+    else:
+      print 'Error: can\'t determine if point or polygon!'
+      sys.exit(1)
+
+  # now formulate request for a point location
+  #if freq: formRequest(yd[int(dsid -1)], ll, var, trange, fmt)
 #--- 
 
-def formRequest(ds, bbox, var='', trange='', fmt='csv'):
+def formRequest(ds, ll, var='', trange='', fmt='csv'):
   """Formulate request based on layer type."""
   global tmpncfile
   #print ds
@@ -184,8 +273,8 @@ def formRequest(ds, bbox, var='', trange='', fmt='csv'):
   tmpncfile = CacheDir + 'tmp-' + datetime.now().strftime('%Y%m%dT%H%M%S') + '.nc'
 
   #split bbox into lat/lon components
-  lat = float(bbox.split(',')[0])
-  lon = float(bbox.split(',')[1])
+  lat = float(ll.split(',')[0])
+  lon = float(ll.split(',')[1])
   delta = 0.10
   # and time range into start and end
   if trange != '':
@@ -207,10 +296,10 @@ def formRequest(ds, bbox, var='', trange='', fmt='csv'):
   # select query command based on type of data
   if ds['type'].lower() == 'netcdf':
     #print 'use ncks or gdallocationinfo'
-    cmd = ['ncks', '-v' + var, '-d' + bbox, ds['location']] 
+    cmd = ['ncks', '-v' + var, '-d' + ll, ds['location']] 
   elif ds['type'].lower() == 'geotiff':
     #print 'use gdallocationinfo (not sure about time series)'
-    cmd = ['gdallocationinfo', '-geoloc', bbox, ds['location']] 
+    cmd = ['gdallocationinfo', '-geoloc', ll, ds['location']] 
   elif ds['type'].lower() == 'wcs':
     #print 'use curl'
     #url = ds['location'] + '&time=%s' % trange + '&bbox=%s' % bbox
@@ -253,7 +342,7 @@ def formRequest(ds, bbox, var='', trange='', fmt='csv'):
   #cmd = ['python', 'ts-out.py', tmpncfile, var]
   #print 'Generate csv ...'
   #print ''
-  timeSeries(tmpncfile, var, fmt, ds, bbox, trange)
+  timeSeries(tmpncfile, var, fmt, ds, ll, trange)
   #if spc(cmd):
   #  print 'Error in command: %s' % cmd
   #  sys.exit(1)
@@ -357,7 +446,7 @@ def main(*args):
          -l[dataset] = list all available datasets (or specified dataset)
          -d<dataset> = dataset number
          -v<variable> = variable identifier
-         -b<bbox> = bounding box lat,lon (lower-left[, upper-right])
+         -p<point/polygon> = POINT(lon lat) or GeoJSON object
          -t(time_range) = (start-time, end-time)
          -f<output_format> = [csv], json, nc, tif ...
          -s[file-name] = produce time-series from NC file (also requires -v<variable>)

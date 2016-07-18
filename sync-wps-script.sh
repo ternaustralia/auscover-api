@@ -8,7 +8,7 @@
 #cp $SCRIPT $DEST
 
 DEST='/usr/lib/cgi-bin/'
-FILES='auscover-wps.py\ntimeSeries.zcfg\nmain.cfg'
+FILES='auscover-wps.py\ntimeSeries.zcfg\nmain.cfg\ntimeSeriesPoly.zcfg'
 
 echo -e "Syncing to ${DEST} ...\n"
 echo -e $FILES |rsync -vt --files-from - . ${DEST}
