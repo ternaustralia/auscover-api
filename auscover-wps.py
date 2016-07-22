@@ -99,10 +99,10 @@ def timeSeriesPoly(conf, inputs, outputs):
 
   # for debug
   #cmdout += 'Layer: %s; Polygon: %s; Variables: %s \n' % (layer, cacheFile, vs)
-  cmdout += ' '.join(cmd)
+  #cmdout += ' '.join(cmd)
 
   # cleanup
-  #if os.path.exists(cacheFile): os.remove(cacheFile)
+  if os.path.exists(cacheFile): os.remove(cacheFile)
 
   #outputs["Result"]["value"] = "Layer selected: " + inputs["layer"]["value"] + ",Finished!"
   outputs["Result"]["value"] = cmdout

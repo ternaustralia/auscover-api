@@ -61,7 +61,7 @@ def extractDate(s):
     return dt.strftime('%Y-%m-%d')
   # if it gets to here then can't work out date
   print 'Can\'t find a date in %s!' % s
-  sys.exit(1)
+  sys.exit()
 
 def polyGtiff(poly, gt, b):
   stats = (extractDate(gt),)
@@ -70,7 +70,8 @@ def polyGtiff(poly, gt, b):
     if bl[i].isdigit():
       bn = int(bl[i])
     else:
-      bn = bl[i]
+      #bn = bl[i]
+      bn = i + 1
     stats += (zonal_stats(poly, gt, band_num=bn, stats=['median'])[0]['median'], )
     #stats += (zonal_stats(poly, gt, band_num=bn, stats='median'), )
   return [stats]
@@ -82,7 +83,8 @@ def pointGtiff(pt, gt, b):
     if bl[i].isdigit():
       bn = int(bl[i])
     else:
-      bn = bl[i]
+      #bn = bl[i]
+      bn = i + 1
     stats += (point_query(pt, gt, band=bn)[0], )
   #stats = (extractDate(gt), point_query(pt, gt, band=b)[0])
   return [stats]
@@ -110,7 +112,7 @@ def polyNetcdf(poly, nc, v):
     return stats
   else:
     print 'Don\'t know what to do with %s dimensions!' % ndims
-    sys.exit(1)
+    sys.exit()
 
 def pointNetcdf(pt, nc, v):
   ncf = Dataset(nc)
@@ -135,7 +137,7 @@ def pointNetcdf(pt, nc, v):
     return stats
   else:
     print 'Don\'t know what to do with %s dimensions!' % ndims
-    sys.exit(1)
+    sys.exit()
 
 def pointOrPoly(pp):
   #if p[0] == '{':
@@ -160,7 +162,7 @@ def pointOrPoly(pp):
       return 'point'
     else:
       print 'Unknown data type!'
-      sys.exit(1)
+      sys.exit()
 
 def getInputs():
   # get commandline inputs
@@ -169,17 +171,18 @@ def getInputs():
   if len(sys.argv) < 2:
     print 'Usage:  raster-stats <file-glob> <point-or-poly> [<variable(s)-or-bandnum(s)>]'
     print ''
-    sys.exit(1)
+    sys.exit()
   elif len(sys.argv) >= 2:
     fileGlob = sys.argv[1]
     if len(sys.argv) >= 3:
       p = sys.argv[2]
     if len(sys.argv) >= 4:
       v = sys.argv[3]
-      if v[0].isdigit():
-        b = v
-      else:
-        b = '1'
+      b = v
+      #if v[0].isdigit():
+      #  b = v
+      #else:
+      #  b = '1'
     return fileGlob, p, v, b
 
 def getFiles(fg):
@@ -192,7 +195,7 @@ def getFiles(fg):
     fmt = 'gtiff'
   else:
     print 'getFiles: Can\'t work out file format!'
-    sys.exit(1)
+    sys.exit()
   return fileList, fmt
 
 def timeSeries(fl, fmt, p, porp, v='', b='1'):

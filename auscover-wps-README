@@ -23,7 +23,7 @@ curl "http://qld.auscover.org.au/wps?Service=WPS&Request=Execute&Version=1.0.0&I
 # Execute process with layer name and lon_lat point and variable - this will give a time series for the selected point and variable
 curl "http://qld.auscover.org.au/wps?Service=WPS&Request=Execute&Version=1.0.0&Identifier=timeSeries&dataInputs=layer=total_cover;lon_lat_position=POINT(149.0%20-35.0);variables=total_cover"
 
-# Execute the timeSeriesPoly process, specifying a urlencoded polygon (currently not retruning anything - not sure why)
+# Execute the timeSeriesPoly process, specifying a urlencoded polygon
 curl "http://qld.auscover.org.au/wps?Service=WPS&Request=Execute&Version=1.0.0&Identifier=timeSeriesPoly&dataInputs=layer=total-cover-monthly-files;polygon=%7B%20%22type%22%3A%20%22FeatureCollection%22%2C%20%22features%22%3A%20%5B%20%7B%20%22type%22%3A%20%22Feature%22%2C%20%22properties%22%3A%20%7B%20%22prop0%22%3A%20%22value0%22%20%7D%2C%20%22id%22%3A%200%2C%20%22geometry%22%3A%20%7B%20%22type%22%3A%20%22Polygon%22%2C%20%22coordinates%22%3A%20%5B%20%5B%20%5B%20149.0%2C%20-35.0%20%5D%2C%20%5B%20152.0%2C%20-35.0%20%5D%2C%20%5B%20152.0%2C%20-32.0%20%5D%2C%20%5B%20149.0%2C%20-32.0%20%5D%2C%20%5B%20149.0%2C%20-35.0%20%5D%20%5D%20%5D%20%7D%20%7D%20%5D%20%7D"
 
 # The map.geo-rapp.org interface utilises the long-running process options: &storeExecuteResponse=true&status=true
@@ -32,3 +32,4 @@ curl "http://qld.auscover.org.au/wps?Service=WPS&Request=Execute&Version=1.0.0&I
 # sed command(s) to pull out just the time-series data 
 ... |sed -n '/<wps\:ComplexData.*>/,/<\/wps\:ComplexData.*>/p' | sed 's/.*wps\:ComplexData.*>//'
 
+# had an issue calling the rasterstats module through ZOO - see https://github.com/AusCover/auscover-api/issues/3  (number 5)

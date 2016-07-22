@@ -18,7 +18,7 @@
    maxOccurs = 1
    <LiteralData>
     dataType = string
-    AllowedValues = fractcover_monthly,total_cover,soil_moisture_amsr2_monthly
+    AllowedValues = fractcover-monthly-files,soil_moisture_amsr2_monthly
     <Default>
     </Default>
    </LiteralData>

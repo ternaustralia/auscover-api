@@ -55,7 +55,8 @@
   spatial_extent: {ul: '0,0', lr: '180,-90'}
   temporal_extent: {start: '2001-01-01T00:00:00.000Z', end: '2016-01-30T00:00:00.000Z'}
   location: '/rdsi/tmp/fc/20??/FractCover.V3_0_1.20????.global.005.TotCov.tiff'
-  variables: '1,2,3'
+  #variables: '1,2,3'
+  variables: 'BS,PV,NPV'
 
 - name: total-cover-monthly-files
   description: Global Total Cover - MODIS

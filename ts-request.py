@@ -1,7 +1,7 @@
 #!/bin/env python
 #
 # ts-request.py: Part of AusCover-API suite
-#   request a timeseries for a point from a data layer
+#   request a timeseries for a point/polygon from a data layer
 #
 
 ### Modules ###
@@ -9,8 +9,9 @@ import os, sys, re
 import yaml
 from pprint import pprint
 from collections import OrderedDict as OD
-from subprocess import call as spc
-from subprocess import check_output
+#from subprocess import call as spc
+#from subprocess import check_output
+import subprocess as sp
 from datetime import datetime
 
 ### Globals ###
@@ -212,18 +213,16 @@ def parseArgs(args):
   if freq:
     ds = yd[dsid - 1]
     if not var: var = ds['variables']
+    if var == 'default': var = ds['variables']
     # is a point or polygon request
     if pointOrPoly(pp) == 'point':
       if ds['type'].lower() == 'file':
-        cmd = ['python', YamlDir + 'raster-stats.py', '\"%s\"' % ds['location'], pp, var]
-        #if spc(cmd):
-        cmdout = check_output(cmd)
-        if not cmdout:
-          print 'Error in command: %s' % cmd
-          sys.exit(1)
-        else:
-          print cmdout
-          sys.exit(0)
+        cmd = ['/usr/bin/python', YamlDir + 'raster-stats.py', '%s' % ds['location'], pp, var]
+        p = sp.Popen(cmd, stdout=sp.PIPE, stderr=sp.PIPE)
+        out, err = p.communicate()
+        print out
+        # for debugging
+        #print '\nOut: %s\nErr: %s\n' % (out, err)
 
       else:
         ll = extractLatLon(pp)
@@ -235,24 +234,11 @@ def parseArgs(args):
         sys.exit(1)
 
       cmd = ['python', YamlDir + 'raster-stats.py', '%s' % ds['location'], pp, var]
-      cmdout = 'Before calling raster-stats\n'
-      cmdout += check_output(cmd)
-      cmdout += 'After calling raster-stats'
-
-      #if spc(cmd):
-      #  cmdout = 'Error in command: %s' % cmd
-      #else:
-      #  cmdout = 'All Ok'
-
-      #if not cmdout:
-      #  print 'Error in command: %s' % cmd
-      #  sys.exit(1)
-      #else:
-      #  print cmdout
-      #  sys.exit(0)
-      print cmdout
-      #sys.exit(0)
-      #exit()
+      p = sp.Popen(cmd, stdout=sp.PIPE, stderr=sp.PIPE)
+      out, err = p.communicate()
+      print out
+      # for debugging
+      #print '\nOut: %s\nErr: %s\n' % (out, err)
 
     else:
       print 'Error: can\'t determine if point or polygon!'
@@ -334,7 +320,7 @@ def formRequest(ds, ll, var='', trange='', fmt='csv'):
   #print 'Running subset request ...'
   #print cmd
   #sys.exit(1)
-  if spc(cmd):
+  if sp.call(cmd):
     print 'Error in command: %s' % cmd
     sys.exit(1)
 
