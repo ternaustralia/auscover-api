@@ -221,12 +221,25 @@ def timeSeries(fl, fmt, p, porp, v='', b='1'):
   head = 'Datetime,'
   if v != '': head += v
   else: head += 'Band:' + b
+  # special case for fract cover
+  fc = False
+  if re.search('fractcover', fl[0], re.I):
+    fc = True
+    head += ',Total_Cover'
   print head
   for dv in tsStats:
     #print '%s,%s' % dv
     line = dv[0]
-    for i in range(len(dv) -1):
-      line += ',' + str(dv[i+1])
+    # special case for fract cover
+    if fc and len(dv) == 4:
+      if dv[3] is None:
+        dv = dv[:-1] + (0.0,)   # because it's a tuple
+      for i in range(len(dv) -1):
+        line += ',' + str(dv[i+1])
+      line += ',' + str(dv[2] + dv[3])
+    else:
+      for i in range(len(dv) -1):
+        line += ',' + str(dv[i+1])
     print line
 
 #
