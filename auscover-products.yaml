@@ -76,4 +76,23 @@
   location: '/rdsi/tmp/fc/anomaly/FractCover.V3_0_1.ANOMALY.20????.global.005.TotCov.tiff'
   variables: anomaly
 
+
+- name: chirps-global-rainfall
+  description: Global Daily Rainfall - CHIRPS
+  type: NCSS
+  crs: 'EPSG:4326'
+  spatial_extent: {ul: '0,0', lr: '180,-90'}
+  temporal_extent: {start: '1981-01-01T00:00:00.000Z', end: '2016-07-01T00:00:00.000Z'}
+  location: http://qld.auscover.org.au/thredds/ncss/auscover/spatial_other/csiro/chirps/chirps-v2.0.days-p05-aggregation.ncml
+  variables: precip
+
+- name: chirps-global-rainfall-files
+  description: Global Rainfall - CHIRPS
+  type: file
+  crs: 'EPSG:4326'
+  spatial_extent: {ul: '0,0', lr: '180,-90'}
+  temporal_extent: {start: '1981-01-01T00:00:00.000Z', end: '2016-01-30T00:00:00.000Z'}
+  location: /rdsi/public/data/spatial_other/csiro/chirps/chirps*.nc
+  variables: precip
+
 ...

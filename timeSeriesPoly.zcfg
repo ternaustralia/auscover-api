@@ -1,0 +1,71 @@
+[timeSeriesPoly]
+ Title = timeSeriesPoly
+ Abstract = Extract a time series from a layer based on the median for a polygon.
+ processVersion = 2
+ storeSupported = true
+ statusSupported = true
+ serviceProvider = auscover-wps
+ serviceType = Python
+ <MetaData>
+   title = TimeSeries Extractor for a polygon
+ </MetaData>
+
+ <DataInputs>
+  [layer]
+   Title = Layer Name
+   Abstract = Unique Layer Name
+   minOccurs = 0
+   maxOccurs = 1
+   <LiteralData>
+    dataType = string
+    AllowedValues = fractcover-monthly-files
+    <Default>
+    </Default>
+   </LiteralData>
+
+  [variables]
+   Title = Variable Name(s)
+   Abstract = (Optional) list of comma-separated variables 
+   minOccurs = 0
+   maxOccurs = 1
+   <LiteralData>
+    dataType = string
+    <Default>
+    </Default>
+   </LiteralData>
+
+  [polygon]
+   Title = Polygon 
+   Abstract = Polygon in geoJSON format
+   minOccurs = 0
+   maxOccurs = 1
+   <ComplexData>
+    <Default>
+     mimeType = application/vnd.geo+json
+     encoding = UTF-8
+     schema = http://geojson.org/geojson-spec.html#polygon
+    </Default>
+    <Supported>
+     mimeType = application/json
+     encoding = UTF-8
+     schema = http://geojson.org/geojson-spec.html#polygon
+    </Supported>
+   </ComplexData>
+
+ </DataInputs>
+
+ <DataOutputs>
+  [Result]
+   Title = Time Series Output
+   Abstract = Time series data for polygon.
+   <ComplexData>
+    <Default>
+     mimeType = text/csv
+     encoding = UTF-8
+    </Default>
+    <Supported>
+     mimeType = text/plain
+     encoding = UTF-8
+    </Supported>
+   </ComplexData>
+ </DataOutputs>
