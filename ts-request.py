@@ -34,15 +34,15 @@ def readYaml():
 
 def listAllDatasets(yd):
   # field length - for printing
-  flen = 30
+  flen = 50
 
   #print 'Contains %d items of %s' % (len(yd), type(yd))
   print ''
   #print 'ID  Layer/Product         Location'
-  print '%3s' % 'ID', 'Layer/Product'.ljust(flen)[:flen], 'Type'.ljust(flen-20), 'Description'.ljust(flen+20)[:flen+20]
-  print '%3s' % '--', '-------------'.ljust(flen)[:flen], '----'.ljust(flen-20), '-----------'.ljust(flen+20)[:flen+20]
+  print '%3s' % 'ID', 'Layer/Product'.ljust(flen)[:flen], 'Type'.ljust(flen-40), 'Description'.ljust(flen+20)[:flen+20]
+  print '%3s' % '--', '-------------'.ljust(flen)[:flen], '----'.ljust(flen-40), '-----------'.ljust(flen+20)[:flen+20]
   for i in range(len(yd)):
-    print "%3s" % str(i+1), yd[i]['name'].ljust(flen)[:flen], yd[i]['type'].ljust(flen-20), yd[i]['description'].ljust(flen+40)[:flen+40]
+    print "%3s" % str(i+1), yd[i]['name'].ljust(flen)[:flen], yd[i]['type'].ljust(flen-40), yd[i]['description'].ljust(flen+40)[:flen+40]
 #--- 
 
 def listDatasetID(ds):

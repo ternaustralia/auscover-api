@@ -1,7 +1,7 @@
 # yaml structure for AusCover product data exposed via the AusCover-API
 ---
 
-- name: fractcover_monthly
+- name: modis-fractcover-global-monthly
   description: Global Fractional Cover - MODIS
   type: WCS
   crs: 'EPSG:4326'
@@ -10,7 +10,17 @@
   location: http://localhost:8080/geoserver-dev/global/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageID=fractcover_monthly
   variables: fractcover
 
-- name: total_cover
+- name: modis-fractcover-global-monthly-files
+  description: Global Fractional Cover Files - MODIS
+  type: file
+  crs: 'EPSG:4326'
+  spatial_extent: {ul: '0,0', lr: '180,-90'}
+  temporal_extent: {start: '2001-01-01T00:00:00.000Z', end: '2016-01-30T00:00:00.000Z'}
+  location: '/rdsi/tmp/fc/20??/FractCover.V3_0_1.20????.global.005.TotCov.tiff'
+  #variables: '1,2,3'
+  variables: 'BS,PV,NPV'
+
+- name: modis-totalcover-global-monthly
   description: Global Total Cover - MODIS
   type: WCS
   crs: 'EPSG:4326'
@@ -20,7 +30,16 @@
   location: http://localhost:8080/geoserver-dev/global/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageID=total_cover
   variables: total_cover
 
-- name: soil_moisture_amsr2_monthly
+- name: modis-totalcover-global-monthly-files
+  description: Global Total Cover - MODIS
+  type: file
+  crs: 'EPSG:4326'
+  spatial_extent: {ul: '0,0', lr: '180,-90'}
+  temporal_extent: {start: '2001-01-01T00:00:00.000Z', end: '2016-01-30T00:00:00.000Z'}
+  location: '/rdsi/tmp/fc/TotCov/20??/monthly/FractCover.V3_0_1.20????.global.005.TotCov_tiled.tiff'
+  variables: total_cover
+
+- name: amsr2-soilmoisture-global-monthly
   description: Global Soil Moisture - AMSR2 - Monthly
   type: NCSS
   crs: 'EPSG:4326'
@@ -28,6 +47,16 @@
   temporal_extent: {start: '2012-08-31T00:00:00.000Z', end: '2016-02-29T00:00:00.000Z'}
   #location: http://qld.auscover.org.au/thredds/ncss/auscover/spatial_other/csiro/amsr2/amsr2-soilm-global-monthly.nc?var=soilm
   location: http://qld.auscover.org.au/thredds/ncss/auscover/spatial_other/csiro/amsr2/amsr2-soilm-global-monthly.nc
+  variables: soilm
+
+- name: amsr2-soilmoisture-global-monthly-files
+  description: Global Soil Moisture - AMSR2 - Monthly
+  type: file
+  crs: 'EPSG:4326'
+  spatial_extent: {ul: '0,0', lr: '+180,-90'}
+  temporal_extent: {start: '2012-08-31T00:00:00.000Z', end: '2016-02-29T00:00:00.000Z'}
+  #location: http://qld.auscover.org.au/thredds/ncss/auscover/spatial_other/csiro/amsr2/amsr2-soilm-global-monthly.nc?var=soilm
+  location: /rdsi/public/data/spatial_other/csiro/amsr2/amsr2-soilm-global-monthly.nc
   variables: soilm
 
 - name: lpdaac-mosaic-mod13q1-v5-ndvi
@@ -48,26 +77,17 @@
   location: /rdsi/public/data/spatial_other/csiro/smips/SMIPS*.nc
   variables: soilm
 
-- name: fractcover-monthly-files
-  description: Global Fractional Cover - MODIS - Global
-  type: file
-  crs: 'EPSG:4326'
-  spatial_extent: {ul: '0,0', lr: '180,-90'}
-  temporal_extent: {start: '2001-01-01T00:00:00.000Z', end: '2016-01-30T00:00:00.000Z'}
-  location: '/rdsi/tmp/fc/20??/FractCover.V3_0_1.20????.global.005.TotCov.tiff'
-  #variables: '1,2,3'
-  variables: 'BS,PV,NPV'
-
-- name: total-cover-monthly-files
+- name: modis-totalcover-anomaly-global-monthly
   description: Global Total Cover - MODIS
-  type: file
+  type: WCS
   crs: 'EPSG:4326'
-  spatial_extent: {ul: '0,0', lr: '180,-90'}
+  spatial_extent: {ul: '0,0', lr: '+180,-90'}
   temporal_extent: {start: '2001-01-01T00:00:00.000Z', end: '2016-01-30T00:00:00.000Z'}
-  location: '/rdsi/tmp/fc/TotCov/20??/monthly/FractCover.V3_0_1.20????.global.005.TotCov_tiled.tiff'
-  variables: total_cover
+  #location: http://qld.auscover.org.au/geoserver-dev/global/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageID=total_cover
+  location: http://localhost:8080/geoserver-dev/global/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageID=fractcover_anomaly
+  variables: anomaly
 
-- name: total-cover-anomaly-files
+- name: modis-totalcover-anomaly-global-monthly-files
   description: Global Total Cover Anomaly - MODIS
   type: file
   crs: 'EPSG:4326'
@@ -76,23 +96,22 @@
   location: '/rdsi/tmp/fc/anomaly/FractCover.V3_0_1.ANOMALY.20????.global.005.TotCov.tiff'
   variables: anomaly
 
-
-- name: chirps-global-rainfall
-  description: Global Daily Rainfall - CHIRPS
+- name: chirps-rainfall-global-monthly
+  description: Global Monthly Rainfall - CHIRPS
   type: NCSS
   crs: 'EPSG:4326'
   spatial_extent: {ul: '0,0', lr: '180,-90'}
   temporal_extent: {start: '1981-01-01T00:00:00.000Z', end: '2016-07-01T00:00:00.000Z'}
-  location: http://qld.auscover.org.au/thredds/ncss/auscover/spatial_other/csiro/chirps/chirps-v2.0.days-p05-aggregation.ncml
+  location: http://qld.auscover.org.au/thredds/ncss/auscover/spatial_other/csiro/chirps/monthly/chirps-v2.0.months-p05-aggregation.ncml
   variables: precip
 
-- name: chirps-global-rainfall-files
-  description: Global Rainfall - CHIRPS
+- name: chirps-rainfall-global-monthly-files
+  description: Global Monthly Rainfall - CHIRPS
   type: file
   crs: 'EPSG:4326'
   spatial_extent: {ul: '0,0', lr: '180,-90'}
   temporal_extent: {start: '1981-01-01T00:00:00.000Z', end: '2016-01-30T00:00:00.000Z'}
-  location: /rdsi/public/data/spatial_other/csiro/chirps/chirps*.nc
+  location: /rdsi/public/data/spatial_other/csiro/chirps/monthly/chirps*.nc
   variables: precip
 
 ...

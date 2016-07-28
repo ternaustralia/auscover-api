@@ -18,7 +18,7 @@
    maxOccurs = 1
    <LiteralData>
     dataType = string
-    AllowedValues = fractcover-monthly-files,soil_moisture_amsr2_monthly
+    AllowedValues = modis-fractcover-global-monthly-files,modis-totalcover-global-monthly,modis-totalcover-anomaly-global-monthly,amsr2-soilmoisture-global-monthly,chirps-rainfall-global-monthly
     <Default>
     </Default>
    </LiteralData>
